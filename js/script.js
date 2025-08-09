@@ -1,67 +1,71 @@
 console.log("Hello, World!");
+let todos = [];
 
-// Array to store todo items
-let todoList = [];
+function addTodo() {
+    const task = document.getElementById("task").value.trim();
+    const dueDate = document.getElementById("dueDate").value;
+    const status = document.getElementById("status").value;
 
-// Validate the form inputs before adding a todo
-function validateForm() {
-    const todoText = document.getElementById('todo-input').value.trim();
-    const dueDate = document.getElementById('date-input').value;
-
-    if (todoText === '' || dueDate === '') {
-        alert('Please enter a todo item and a due date.');
-    } else {
-        addTodo(todoText, dueDate);
-
-        // Clear the input fields
-        document.getElementById('todo-input').value = '';
-        document.getElementById('date-input').value = '';
-    }
-}
-
-// Add a new todo to the list
-function addTodo(task, date) {
-    const todoItem = {
-        task: task, 
-        date: date
-    };
-    todoList.push(todoItem);
-    displayTodos();
-    console.log('Todo added:', todoList); 
-}
-
-// Display the todo list
-function displayTodos() {
-    const todoContainer = document.getElementById('todo-list');
-    todoContainer.innerHTML = ''; // Clear existing todos
-
-    if (todoList.length === 0) {
-        todoContainer.innerHTML = '<p class="text-gray-700">No todos added yet.</p>';
+    if (!task || !dueDate) {
+        alert("Isi task dan due date!");
         return;
     }
 
-    todoList.forEach((item, index) => {
-        const listItem = document.createElement('div');
-        listItem.classList.add('flex', 'justify-between', 'items-center', 'p-2', 'border-b');
+    todos.push({ task, dueDate, status });
+    displayTodos();
+    clearForm();
+}
 
-        listItem.innerHTML = `
-            <li class="todo-item">
-                <span class="text-gray-700 text-xl">${item.task} - (${item.date})</span>
-                <button class="delete-btn bg-red-500 text-white px-2 rounded" onclick="deleteTodo(${index})">Delete</button>
-            </li>
+function deleteTodo(index) {
+    todos.splice(index, 1);
+    displayTodos();
+}
+
+function displayTodos(list = todos) {
+    const table = document.getElementById("todoTable");
+    table.innerHTML = "";
+
+    list.forEach((todo, index) => {
+        table.innerHTML += `
+            <tr class="border-b">
+                <td class="px-4 py-2">${todo.task}</td>
+                <td class="px-4 py-2">${todo.dueDate}</td>
+                <td class="px-4 py-2">${todo.status}</td>
+                <td class="px-4 py-2">
+                    <button onclick="deleteTodo(${index})" class="bg-red-500 text-white px-2 py-1 rounded">Hapus</button>
+                </td>
+            </tr>
         `;
-        todoContainer.appendChild(listItem);
     });
 }
 
-function clearTodos(){
-    todoList = []; 
-    displayTodos(); 
-    console.log('Todos list cleared:');
+function clearForm() {
+    document.getElementById("task").value = "";
+    document.getElementById("dueDate").value = "";
+    document.getElementById("status").value = "Pending";
 }
 
-// Delete a todo item
-function deleteTodo(index) {
-    todoList.splice(index, 1);
+// Filter function
+function applyFilter() {
+    const filterTask = document.getElementById("filterTask").value.toLowerCase();
+    const filterDate = document.getElementById("filterDate").value;
+    const filterStatus = document.getElementById("filterStatus").value;
+
+    const filtered = todos.filter(todo => {
+        const matchTask = todo.task.toLowerCase().includes(filterTask);
+        const matchDate = filterDate ? todo.dueDate === filterDate : true;
+        const matchStatus = filterStatus ? todo.status === filterStatus : true;
+
+        return matchTask && matchDate && matchStatus;
+    });
+
+    displayTodos(filtered);
+}
+
+// Reset filter
+function resetFilter() {
+    document.getElementById("filterTask").value = "";
+    document.getElementById("filterDate").value = "";
+    document.getElementById("filterStatus").value = "";
     displayTodos();
 }
